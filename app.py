@@ -2,6 +2,7 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from connection_manager import ConnectionManager
 from handlers.message_handler import MessageHandler
 from models import ClientSession
+from protocol import create_join_message, serialize
 app = FastAPI()
 manager = ConnectionManager()
 message_handler = MessageHandler(manager=manager)
@@ -29,8 +30,9 @@ async def websocket_endpoint(websocket: WebSocket, username: str):
     session = ClientSession(username=username, websocket=websocket)
     await manager.connect(session)
     print("CLient connection established")
+    join_message = create_join_message(username)
     await manager.broadcast_except(
-        f"📢 {session.username} joined the chat.",
+        serialize(join_message),
         exclude_session=session
         
     )

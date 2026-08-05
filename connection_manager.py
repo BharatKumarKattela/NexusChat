@@ -60,3 +60,6 @@ class ConnectionManager:
     
     async def send_to(self, session: ClientSession, message: str):
         await session.websocket.send_text(message)
+        
+    def get_online_users(self) -> list[str]:
+        return [session.username for session in self.active_sessions]

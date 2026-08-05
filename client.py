@@ -1,6 +1,8 @@
 import asyncio
 from websockets.asyncio.client import connect
 
+from protocol import deserialize
+
 async def main():
     print("Connecting to NexusChat...")
     username = input("Username: ").strip()
@@ -39,7 +41,13 @@ async def receive_messages(websocket):
         while True:
             print("Waiting for message...")
             response = await websocket.recv()
-            print(response)  
+            protocol_message = deserialize(response)
+            match protocol_message["type"]:
+                case "chat":
+                    print(f"\n{protocol_message['username']}: {protocol_message['message']}")
+                case "join":
+                    print(f"\n{protocol_message['message']}")
+             
     except asyncio.CancelledError:
         print("Receiver task cancelled.")
         raise
