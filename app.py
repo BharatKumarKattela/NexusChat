@@ -1,9 +1,10 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from connection_manager import ConnectionManager
+from handlers.message_handler import MessageHandler
 from models import ClientSession
 app = FastAPI()
 manager = ConnectionManager()
-
+message_handler = MessageHandler(manager=manager)
 
 @app.get("/")
 async def health():
@@ -37,7 +38,10 @@ async def websocket_endpoint(websocket: WebSocket, username: str):
     try:
         while True:
             message = await session.websocket.receive_text()    
-            await manager.broadcast(f"{session.username}: {message}")
+            await message_handler.handle_message(
+                session, 
+                message
+                )
     except WebSocketDisconnect:
         manager.disconnect(session)
         await manager.broadcast_except(

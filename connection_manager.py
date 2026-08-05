@@ -57,3 +57,6 @@ class ConnectionManager:
         
     def username_exists(self, username: str) -> bool:
         return any(session.username == username for session in self.active_sessions)
+    
+    async def send_to(self, session: ClientSession, message: str):
+        await session.websocket.send_text(message)

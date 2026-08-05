@@ -3,7 +3,11 @@ from websockets.asyncio.client import connect
 
 async def main():
     print("Connecting to NexusChat...")
-    username = "Bharat"
+    username = input("Username: ").strip()
+
+    if not username:
+        print("Username cannot be empty.")
+        return
 
     async with connect(f"ws://127.0.0.1:8000/ws?username={username}") as websocket:
         print("Connected to NexusChat!")
