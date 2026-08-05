@@ -3,8 +3,9 @@ from websockets.asyncio.client import connect
 
 async def main():
     print("Connecting to NexusChat...")
+    username = "Bharat"
 
-    async with connect("ws://127.0.0.1:8000/ws") as websocket:
+    async with connect(f"ws://127.0.0.1:8000/ws?username={username}") as websocket:
         print("Connected to NexusChat!")
         sender = asyncio.create_task(
             send_messages(websocket)
@@ -34,7 +35,7 @@ async def receive_messages(websocket):
         while True:
             print("Waiting for message...")
             response = await websocket.recv()
-            print(f"Received from server: {response}")  
+            print(response)  
     except asyncio.CancelledError:
         print("Receiver task cancelled.")
         raise
