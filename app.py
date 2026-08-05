@@ -18,8 +18,9 @@ async def websocket_endpoint(websocket: WebSocket):
     print(f"Active connections: {manager.count()}")
     try:
         while True:
-            message = await websocket.receive_text()            
-            await websocket.send_text(f"Message received: {message}")
+            message = await websocket.receive_text()    
+            print(f"Received from client: {message}")     
+            await manager.broadcast(f"Message received: {message}")
     except WebSocketDisconnect:
         manager.disconnect(websocket)
         print("Client connection closed")

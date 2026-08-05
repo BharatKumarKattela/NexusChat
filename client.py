@@ -32,6 +32,7 @@ async def send_messages(websocket):
 async def receive_messages(websocket):
     try:
         while True:
+            print("Waiting for message...")
             response = await websocket.recv()
             print(f"Received from server: {response}")  
     except asyncio.CancelledError:
