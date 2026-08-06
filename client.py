@@ -18,7 +18,7 @@ async def main():
         )
 
         receiver = asyncio.create_task(
-            receive_messages(websocket)
+            receive_messages(websocket, username)
         )
         await sender
         receiver.cancel()  # Cancel the receiver task when sender is done
@@ -36,17 +36,42 @@ async def send_messages(websocket):
             break
         await websocket.send(message)
         
-async def receive_messages(websocket):
+async def receive_messages(websocket, username: str):
     try:
         while True:
             print("Waiting for message...")
-            response = await websocket.recv()
-            protocol_message = deserialize(response)
+            received_message  = await websocket.recv()
+            protocol_message = deserialize(received_message )
             match protocol_message["type"]:
+                case "private":
+                    if protocol_message["sender"] == username:
+                        print(
+                            f"\n[You → {protocol_message['recipient']}] "
+                            f"{protocol_message['message']}"
+                        )
+                    else:
+                        print(
+                            f"\n[Private] {protocol_message['sender']}: "
+                            f"{protocol_message['message']}"
+                        )
+                case "error":
+                    print(f"\n❌ {protocol_message['message']}")
                 case "chat":
                     print(f"\n{protocol_message['username']}: {protocol_message['message']}")
                 case "join":
                     print(f"\n{protocol_message['message']}")
+                case "leave":
+                    print(f"\n{protocol_message['message']}")
+                case "online_users":
+                    print(
+                        "\nOnline Users:\n"
+                        + "\n".join(
+                            f"• {user}"
+                            for user in protocol_message["users"]
+                        )
+                    )
+                case _:
+                    print(f"\nUnknown protocol message: {protocol_message}")
              
     except asyncio.CancelledError:
         print("Receiver task cancelled.")

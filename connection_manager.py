@@ -63,3 +63,9 @@ class ConnectionManager:
         
     def get_online_users(self) -> list[str]:
         return [session.username for session in self.active_sessions]
+    
+    def get_session(self, username: str) -> ClientSession | None:
+        for session in self.active_sessions:
+            if session.username == username:
+                return session
+        return None

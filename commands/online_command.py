@@ -1,10 +1,13 @@
 
 
+from models import ClientSession
+
+
 class OnlineCommand:
     def __init__(self, manager):
         self.manager = manager
 
-    async def execute(self, session):
+    async def execute(self, session: ClientSession, arguments: str = ""):
         users = self.manager.get_online_users()
 
         response = (

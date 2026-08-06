@@ -2,7 +2,7 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from connection_manager import ConnectionManager
 from handlers.message_handler import MessageHandler
 from models import ClientSession
-from protocol import create_join_message, serialize
+from protocol import create_error_message, create_join_message, create_leave_message, serialize
 app = FastAPI()
 manager = ConnectionManager()
 message_handler = MessageHandler(manager=manager)
@@ -21,7 +21,11 @@ async def websocket_endpoint(websocket: WebSocket, username: str):
         await websocket.accept()
 
         await websocket.send_text(
-            f"ERROR: Username '{username}' is already in use."
+            serialize(
+                create_error_message(
+                    f"Username '{username}' is already taken."
+                )
+            )
         )
 
         await websocket.close()
@@ -46,8 +50,9 @@ async def websocket_endpoint(websocket: WebSocket, username: str):
                 )
     except WebSocketDisconnect:
         manager.disconnect(session)
+        leave_message = create_leave_message(username)
         await manager.broadcast_except(
-            f"📢 {session.username} left the chat.",
+            serialize(leave_message),
             exclude_session=session
         )
         print("Client connection closed")
