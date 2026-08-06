@@ -1,10 +1,8 @@
-
-
 from commands.private_message_command import PrivateMessageCommand
 from connection_manager import ConnectionManager
 from models import ClientSession
 from commands.online_command import OnlineCommand
-from protocol import create_chat_message, serialize
+from protocol import create_chat_message, create_error_message, serialize
 
 class MessageHandler:
     
@@ -22,9 +20,18 @@ class MessageHandler:
             command_name = parts[0].lower()
             arguments = parts[1] if len(parts) > 1 else ""
             command = self.commands.get(command_name)
-            if command:
-                await command.execute(session, arguments)
+            if not command:
+                await self.manager.send_to(
+                    session,
+                    serialize(
+                        create_error_message(
+                            f"Unknown command: {command_name}"
+                        )
+                    ),
+                )
                 return
+            await command.execute(session, arguments)
+            return
         
         protocol_message = create_chat_message(
             username=session.username,

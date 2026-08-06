@@ -9,3 +9,6 @@ wheels/
 # Virtual environments
 .venv
 project_plan/
+htmlcov/
+.pytest_cache/
+.coverage
